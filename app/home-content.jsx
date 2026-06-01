@@ -24,6 +24,8 @@ import {
   UsersRound,
   X
 } from "lucide-react";
+import ServiceCard from "./components/ServiceCard";
+import { servicesData } from "./data/servicesData";
 
 const services = [
   ["BIM Services", "Digital models built for better planning, clearer coordination, and confident delivery.", Layers3],
@@ -177,15 +179,15 @@ function Services() {
       <div className="shell">
         <SectionIntro center eyebrow="Our Services" title={<>Complete BIM support.<br /><span>One reliable partner.</span></>} copy="Specialist services that improve project visibility, accuracy, and coordination from early design through delivery." />
         <div className="service-grid">
-          {services.map(([title, copy, Icon], index) => (
-            <motion.article className={`service-card ${index === 0 ? "service-featured" : ""}`} key={title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }}>
-              {index === 0 ? <img src="/images/architectural-documentation.jpeg" alt="" /> : null}
-              <div className="service-icon"><Icon size={22} /></div>
-              <p className="card-number">{String(index + 1).padStart(2, "0")}</p>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-              <span className="card-link">Learn more <ArrowUpRight size={15} /></span>
-            </motion.article>
+          {servicesData.map((service, index) => (
+            <ServiceCard
+              key={service.title}
+              title={service.title}
+              description={service.description}
+              Icon={service.icon}
+              index={index}
+              image={service.image}
+            />
           ))}
         </div>
       </div>
