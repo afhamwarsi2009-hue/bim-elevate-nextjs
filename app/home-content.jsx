@@ -47,11 +47,51 @@ const projects = [
   ["KFU LAB", "Laboratory Coordination", "/images/projects/kfu-lab.jpg"]
 ];
 
-const serviceCategories = [
-  ["Modeling", "Core model development and digital delivery workflows.", Layers3],
-  ["Coordination", "Conflict review, MEP routing, and buildability support.", Network],
-  ["Documentation", "Construction-ready drawings, shop drawings, and submittals.", FileCheck2],
-  ["Specialist Support", "Families, conversions, and scalable BIM production.", Building2]
+const megaMenuColumns = [
+  {
+    title: "BIM Services",
+    icon: Layers3,
+    items: [
+      "BIM Services",
+      "Revit Family Creation",
+      "Clash Detection & Coordination",
+      "CAD To BIM Conversion",
+      "Construction Document Set"
+    ]
+  },
+  {
+    title: "MEP Services",
+    icon: ShieldCheck,
+    items: [
+      "MEP Services",
+      "MEP Shop Drawings",
+      "MEP Coordination",
+      "Fire Protection Modeling",
+      "Quantity Takeoffs"
+    ]
+  },
+  {
+    title: "Architectural BIM Services",
+    icon: DraftingCompass,
+    items: [
+      "Architectural BIM Services",
+      "Architectural Documentation",
+      "Scan To BIM",
+      "Permit Drawing Support",
+      "Design Development Models"
+    ]
+  },
+  {
+    title: "Structural BIM Services",
+    icon: Building2,
+    items: [
+      "Structural BIM Services",
+      "Structural Modeling",
+      "Steel Detailing Support",
+      "Rebar Modeling",
+      "Structural Shop Drawings"
+    ]
+  }
 ];
 
 const blogs = [
@@ -85,14 +125,6 @@ const faqs = [
   ["How can I request a quote?", "Send your scope, drawings, model requirements, and timeline through the inquiry form or email info@bimelevate.in."]
 ];
 
-const steps = [
-  ["01", "Understand", "Review goals, scope, standards, and delivery expectations."],
-  ["02", "Plan", "Define BIM strategy, LOD, responsibilities, and milestones."],
-  ["03", "Model", "Develop accurate models and coordinated documentation."],
-  ["04", "Coordinate", "Detect issues, review disciplines, and resolve clashes."],
-  ["05", "Deliver", "Submit quality-checked models, drawings, and reports."]
-];
-
 function SectionIntro({ eyebrow, title, copy, center = false }) {
   return (
     <div className={center ? "section-intro section-intro-center" : "section-intro"}>
@@ -107,7 +139,22 @@ function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("top");
   const [megaOpen, setMegaOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(0);
+  const [megaStyle, setMegaStyle] = useState({});
+
+  const openMegaMenu = (event) => {
+    const trigger = event.currentTarget.matches("a") ? event.currentTarget : event.currentTarget.querySelector("a");
+    const rect = trigger.getBoundingClientRect();
+    const headerRect = trigger.closest(".site-header").getBoundingClientRect();
+    const width = Math.min(860, window.innerWidth - 32);
+    const left = Math.min(Math.max(rect.left + rect.width / 2 - width / 2, 16), window.innerWidth - width - 16);
+
+    setMegaStyle({
+      left: `${left}px`,
+      top: `${rect.bottom - headerRect.top + 18}px`,
+      width: `${width}px`
+    });
+    setMegaOpen(true);
+  };
 
   useEffect(() => {
     const sectionIds = navigationItems.map(([, href]) => href.slice(1));
@@ -148,41 +195,36 @@ function Navbar() {
           <nav className="desktop-nav" aria-label="Main navigation">
             {navigationItems.map(([label, href]) => (
               label === "Services" ? (
-                <div className="nav-mega-wrap" key={href} onMouseEnter={() => setMegaOpen(true)} onMouseLeave={() => setMegaOpen(false)}>
-                  <a className={active === href.slice(1) ? "nav-active" : ""} href={href} onFocus={() => setMegaOpen(true)}>
+                <div className="nav-mega-wrap" key={href} onMouseEnter={openMegaMenu} onMouseLeave={() => setMegaOpen(false)}>
+                  <a className={active === href.slice(1) ? "nav-active" : ""} href={href} onFocus={openMegaMenu}>
                     {label} <ChevronDown size={14} />
                   </a>
                   <AnimatePresence>
                     {megaOpen ? (
                       <motion.div
                         className="services-mega"
+                        style={megaStyle}
                         initial={{ opacity: 0, y: 16, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.98 }}
                         transition={{ duration: 0.22, ease: "easeOut" }}
                       >
-                        <div className="mega-sidebar">
-                          {serviceCategories.map(([title, copy, Icon], index) => (
-                            <button className={activeCategory === index ? "mega-category mega-category-active" : "mega-category"} key={title} type="button" onMouseEnter={() => setActiveCategory(index)} onFocus={() => setActiveCategory(index)}>
-                              <Icon size={19} />
-                              <span><strong>{title}</strong><small>{copy}</small></span>
-                            </button>
+                        <div className="mega-column-grid">
+                          {megaMenuColumns.map(({ title, icon: Icon, items }) => (
+                            <div className="mega-column" key={title}>
+                              <div className="mega-column-heading">
+                                <Icon size={19} />
+                                <h3>{title}</h3>
+                              </div>
+                              <ul>
+                                {items.map((item) => (
+                                  <li key={item}>
+                                    <a href="#services">{item}</a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
                           ))}
-                        </div>
-                        <div className="mega-panel">
-                          <div className="mega-card-grid">
-                            {servicesData.slice(activeCategory * 2, activeCategory * 2 + 3).map((service) => (
-                              <a href="#services" className="mega-service-card" key={service.title}>
-                                <service.icon size={20} />
-                                <span>{service.title}</span>
-                                <small>{service.description}</small>
-                              </a>
-                            ))}
-                          </div>
-                          <div className="mega-actions">
-                            <a className="button button-primary" href="#contact">Request Proposal <ArrowUpRight size={16} /></a>
-                            <a className="button button-glass" href="#contact">Schedule Meeting <ArrowRight size={16} /></a>
-                          </div>
                         </div>
                       </motion.div>
                     ) : null}
@@ -193,6 +235,7 @@ function Navbar() {
               )
             ))}
           </nav>
+          <a className="nav-phone" href="tel:+12152533500"><Phone size={16} /> +1-215-253-3500</a>
           <a className="button button-primary desktop-cta" href="#contact">Request Proposal <ArrowUpRight size={16} /></a>
           <button className="menu-button" type="button" onClick={() => setOpen(!open)} aria-label="Toggle navigation" aria-expanded={open}>
             {open ? <X /> : <Menu />}
@@ -202,6 +245,7 @@ function Navbar() {
           {open ? (
             <motion.nav className="mobile-nav" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
               {navigationItems.map(([label, href]) => <a className={active === href.slice(1) ? "nav-active" : ""} key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
+              <a href="tel:+12152533500" onClick={() => setOpen(false)}><Phone size={15} /> +1-215-253-3500</a>
               <a href="#contact" onClick={() => setOpen(false)}>Request Proposal</a>
             </motion.nav>
           ) : null}
@@ -321,27 +365,14 @@ function Blogs() {
       <div className="shell">
         <SectionIntro eyebrow="BIM Insights" title={<>Ideas for cleaner models,<br /><span>coordination, and delivery.</span></>} copy="Short reads for AEC teams planning better BIM scopes, reviews, and documentation workflows." />
         <div className="blog-grid">
-          {blogs.map(([title, copy]) => (
+          {blogs.map(([title, copy], index) => (
             <article className="blog-card" key={title}>
-              <p>Insight</p>
+              <p><span>{String(index + 1).padStart(2, "0")}</span> Insight</p>
               <h3>{title}</h3>
               <span>{copy}</span>
               <a href="#contact">Discuss this topic <ArrowRight size={16} /></a>
             </article>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Process() {
-  return (
-    <section className="section section-soft">
-      <div className="shell">
-        <SectionIntro center eyebrow="How We Work" title={<>A clear BIM process.<br /><span>Better results at every stage.</span></>} />
-        <div className="process-grid">
-          {steps.map(([number, title, copy]) => <article key={number}><strong>{number}</strong><h3>{title}</h3><p>{copy}</p></article>)}
         </div>
       </div>
     </section>
@@ -418,5 +449,5 @@ function Footer() {
 }
 
 export default function HomeContent() {
-  return <><Navbar /><main><Hero /><About /><Services /><WhyUs /><Projects /><Process /><Blogs /><Testimonials /><FAQ /><Contact /></main><Footer /></>;
+  return <><Navbar /><main><Hero /><About /><Services /><WhyUs /><Projects /><Blogs /><Testimonials /><FAQ /><Contact /></main><Footer /></>;
 }
