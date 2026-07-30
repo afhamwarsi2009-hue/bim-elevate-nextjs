@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -46,6 +47,21 @@ const projects = [
   ["KFU LAB", "Laboratory Coordination", "/images/projects/kfu-lab.jpg"]
 ];
 
+const serviceCategories = [
+  ["Modeling", "Core model development and digital delivery workflows.", Layers3],
+  ["Coordination", "Conflict review, MEP routing, and buildability support.", Network],
+  ["Documentation", "Construction-ready drawings, shop drawings, and submittals.", FileCheck2],
+  ["Specialist Support", "Families, conversions, and scalable BIM production.", Building2]
+];
+
+const blogs = [
+  ["How BIM coordination reduces site risk", "Practical ways multidisciplinary reviews uncover issues before construction."],
+  ["What to include in a BIM proposal", "Scope, LOD, inputs, timelines, and review cycles that keep delivery clear."],
+  ["CAD to BIM conversion best practices", "How legacy drawings become reliable, information-rich models."]
+];
+
+const navigationItems = [["Home", "#top"], ["About", "#about"], ["Services", "#services"], ["Projects", "#projects"], ["Blogs", "#blogs"], ["Contact Us", "#contact"]];
+
 const trustPoints = [
   ["NDA Protection", "Your project data stays confidential through controlled workflows.", LockKeyhole],
   ["Dedicated BIM Managers", "A clear point of contact keeps every delivery cycle accountable.", UsersRound],
@@ -89,7 +105,32 @@ function SectionIntro({ eyebrow, title, copy, center = false }) {
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-  const items = [["About", "#about"], ["Services", "#services"], ["Why Us", "#why-us"], ["Projects", "#projects"], ["FAQ", "#faq"]];
+  const [active, setActive] = useState("top");
+  const [megaOpen, setMegaOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(0);
+
+  useEffect(() => {
+    const sectionIds = navigationItems.map(([, href]) => href.slice(1));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible) {
+          setActive(visible.target.id);
+        }
+      },
+      { rootMargin: "-30% 0px -55% 0px", threshold: [0.1, 0.35, 0.6] }
+    );
+
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
@@ -102,12 +143,57 @@ function Navbar() {
       <header className="site-header">
         <div className="shell nav-inner">
           <a href="#top" className="brand" aria-label="BIM Elevate home">
-            <img src="/images/bim-elevate-logo.png" alt="BIM Elevate" />
+            <Image src="/images/bim-elevate-logo.png" alt="BIM Elevate" width={156} height={64} priority />
           </a>
           <nav className="desktop-nav" aria-label="Main navigation">
-            {items.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
+            {navigationItems.map(([label, href]) => (
+              label === "Services" ? (
+                <div className="nav-mega-wrap" key={href} onMouseEnter={() => setMegaOpen(true)} onMouseLeave={() => setMegaOpen(false)}>
+                  <a className={active === href.slice(1) ? "nav-active" : ""} href={href} onFocus={() => setMegaOpen(true)}>
+                    {label} <ChevronDown size={14} />
+                  </a>
+                  <AnimatePresence>
+                    {megaOpen ? (
+                      <motion.div
+                        className="services-mega"
+                        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                        transition={{ duration: 0.22, ease: "easeOut" }}
+                      >
+                        <div className="mega-sidebar">
+                          {serviceCategories.map(([title, copy, Icon], index) => (
+                            <button className={activeCategory === index ? "mega-category mega-category-active" : "mega-category"} key={title} type="button" onMouseEnter={() => setActiveCategory(index)} onFocus={() => setActiveCategory(index)}>
+                              <Icon size={19} />
+                              <span><strong>{title}</strong><small>{copy}</small></span>
+                            </button>
+                          ))}
+                        </div>
+                        <div className="mega-panel">
+                          <div className="mega-card-grid">
+                            {servicesData.slice(activeCategory * 2, activeCategory * 2 + 3).map((service) => (
+                              <a href="#services" className="mega-service-card" key={service.title}>
+                                <service.icon size={20} />
+                                <span>{service.title}</span>
+                                <small>{service.description}</small>
+                              </a>
+                            ))}
+                          </div>
+                          <div className="mega-actions">
+                            <a className="button button-primary" href="#contact">Request Proposal <ArrowUpRight size={16} /></a>
+                            <a className="button button-glass" href="#contact">Schedule Meeting <ArrowRight size={16} /></a>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <a className={active === href.slice(1) ? "nav-active" : ""} key={href} href={href}>{label}</a>
+              )
+            ))}
           </nav>
-          <a className="button button-primary desktop-cta" href="#contact">Request a Quote <ArrowUpRight size={16} /></a>
+          <a className="button button-primary desktop-cta" href="#contact">Request Proposal <ArrowUpRight size={16} /></a>
           <button className="menu-button" type="button" onClick={() => setOpen(!open)} aria-label="Toggle navigation" aria-expanded={open}>
             {open ? <X /> : <Menu />}
           </button>
@@ -115,8 +201,8 @@ function Navbar() {
         <AnimatePresence>
           {open ? (
             <motion.nav className="mobile-nav" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-              {items.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
-              <a href="#contact" onClick={() => setOpen(false)}>Request a Quote</a>
+              {navigationItems.map(([label, href]) => <a className={active === href.slice(1) ? "nav-active" : ""} key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
+              <a href="#contact" onClick={() => setOpen(false)}>Request Proposal</a>
             </motion.nav>
           ) : null}
         </AnimatePresence>
@@ -158,7 +244,7 @@ function About() {
     <section className="section" id="about">
       <div className="shell about-grid">
         <div className="about-art">
-          <img src="/images/architectural-documentation.jpeg" alt="Architectural construction documentation set" />
+          <Image src="/images/architectural-documentation.jpeg" alt="Architectural construction documentation set" width={900} height={760} />
           <div className="about-card"><span>PRECISION FIRST</span><strong>Better documentation.<br />Better construction.</strong></div>
         </div>
         <div>
@@ -218,9 +304,29 @@ function Projects() {
         <div className="project-grid">
           {projects.map(([title, copy, image], index) => (
             <article className={index === 0 ? "project-card project-card-large" : "project-card"} key={title}>
-              <img src={image} alt={title} />
+              <Image src={image} alt={title} fill loading="eager" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 50vw" />
               <div className="project-shade" />
               <div className="project-info"><p>0{index + 1} / Selected Project</p><h3>{title}</h3><span>{copy}</span></div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Blogs() {
+  return (
+    <section className="section section-soft" id="blogs">
+      <div className="shell">
+        <SectionIntro eyebrow="BIM Insights" title={<>Ideas for cleaner models,<br /><span>coordination, and delivery.</span></>} copy="Short reads for AEC teams planning better BIM scopes, reviews, and documentation workflows." />
+        <div className="blog-grid">
+          {blogs.map(([title, copy]) => (
+            <article className="blog-card" key={title}>
+              <p>Insight</p>
+              <h3>{title}</h3>
+              <span>{copy}</span>
+              <a href="#contact">Discuss this topic <ArrowRight size={16} /></a>
             </article>
           ))}
         </div>
@@ -301,8 +407,8 @@ function Footer() {
   return (
     <footer>
       <div className="shell footer-grid">
-        <div><img src="/images/bim-elevate-logo.png" alt="BIM Elevate" /><p>Professional BIM modeling, coordination, and documentation support for global AEC teams.</p></div>
-        <div><h3>Explore</h3><a href="#about">About</a><a href="#services">Services</a><a href="#projects">Projects</a><a href="#faq">FAQ</a></div>
+        <div><Image src="/images/bim-elevate-logo.png" alt="BIM Elevate" width={160} height={66} /><p>Professional BIM modeling, coordination, and documentation support for global AEC teams.</p></div>
+        <div><h3>Explore</h3><a href="#top">Home</a><a href="#about">About</a><a href="#services">Services</a><a href="#projects">Projects</a><a href="#blogs">Blogs</a><a href="#contact">Contact Us</a></div>
         <div><h3>Core Services</h3><a href="#services">BIM Modeling</a><a href="#services">MEP Services</a><a href="#services">Clash Detection</a><a href="#services">Shop Drawings</a></div>
         <div><h3>Contact</h3><a href="mailto:info@bimelevate.in">info@bimelevate.in</a><span>www.bimelevate.in</span></div>
       </div>
@@ -312,5 +418,5 @@ function Footer() {
 }
 
 export default function HomeContent() {
-  return <><Navbar /><main><Hero /><About /><Services /><WhyUs /><Projects /><Process /><Testimonials /><FAQ /><Contact /></main><Footer /></>;
+  return <><Navbar /><main><Hero /><About /><Services /><WhyUs /><Projects /><Process /><Blogs /><Testimonials /><FAQ /><Contact /></main><Footer /></>;
 }
