@@ -53,10 +53,15 @@ const megaMenuColumns = [
     icon: Layers3,
     items: [
       "BIM Services",
+      "3D BIM Modeling",
+      "Revit Modeling Services",
+      "As-Built Modeling",
+      "BIM-Based Digital Fabrication",
+      "CAD To BIM Conversion",
+      "CAD Drafting",
       "Revit Family Creation",
       "Clash Detection & Coordination",
-      "CAD To BIM Conversion",
-      "Construction Document Set"
+      "BIM Implementation Services"
     ]
   },
   {
@@ -64,10 +69,13 @@ const megaMenuColumns = [
     icon: ShieldCheck,
     items: [
       "MEP Services",
-      "MEP Shop Drawings",
-      "MEP Coordination",
-      "Fire Protection Modeling",
-      "Quantity Takeoffs"
+      "MEP 3D Modeling",
+      "MEP BIM Coordination",
+      "Mechanical Modeling & Drawings",
+      "Electrical Modeling & Drawings",
+      "Plumbing Modeling & Drawings",
+      "Fire Protection Modeling & Drawings",
+      "MEP Shop Drawings"
     ]
   },
   {
@@ -75,7 +83,11 @@ const megaMenuColumns = [
     icon: DraftingCompass,
     items: [
       "Architectural BIM Services",
+      "Architectural 3D Modeling",
       "Architectural Documentation",
+      "Construction Document Set",
+      "CAD As-Built Drawings",
+      "Facade Shop Drawings",
       "Scan To BIM",
       "Permit Drawing Support",
       "Design Development Models"
@@ -86,9 +98,13 @@ const megaMenuColumns = [
     icon: Building2,
     items: [
       "Structural BIM Services",
+      "Structural 3D Modeling",
+      "Structural Steel Detailing",
       "Structural Modeling",
       "Steel Detailing Support",
+      "Rebar Detailing",
       "Rebar Modeling",
+      "Steel Fabrication Shop Drawings",
       "Structural Shop Drawings"
     ]
   }
